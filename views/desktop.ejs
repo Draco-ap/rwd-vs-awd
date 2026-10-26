@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo de Servidores | Versión AWD (desktop)</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/adaptive-desktop.css">
+  <script src="/vendor/chart.umd.js" defer></script>
+  <script src="/js/adaptive-chart.js" defer></script>
+  <script src="/js/adaptive-filters.js" defer></script>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="layout">
+    <aside class="sidebar" id="filters" aria-label="Filtros y comparativa">
+      <h2>Filtros</h2>
+      <%- include('partials/filters-form') %>
+
+      <section class="compare">
+        <h2>Comparativa</h2>
+        <label class="field">Métrica
+          <select id="metric">
+            <option value="score">Rendimiento</option>
+            <option value="power">Consumo (W)</option>
+            <option value="price">Precio (USD)</option>
+          </select>
+        </label>
+        <div class="chart-box">
+          <canvas id="chart" role="img" aria-label="Gráfico de barras que compara los productos visibles"></canvas>
+        </div>
+      </section>
+    </aside>
+
+    <main class="content">
+      <div class="content__bar">
+        <h1>Catálogo de servidores</h1>
+        <p id="result-count" aria-live="polite"><%= products.length %> de <%= products.length %> productos</p>
+      </div>
+      <div class="grid">
+        <%_ products.forEach((p) => { _%>
+        <%- include('partials/card', { p, full: true }) %>
+        <%_ }) _%>
+      </div>
+      <p id="empty" class="empty" hidden>Ningún producto coincide con los filtros.</p>
+    </main>
+  </div>
+</body>
+</html>

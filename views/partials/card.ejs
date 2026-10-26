@@ -1,0 +1,23 @@
+<article class="card" data-category="<%= p.category %>" data-price="<%= p.price %>" data-ram="<%= p.ramGB %>" data-storage="<%= p.storageType %>"<% if (full) { %> data-name="<%= p.name %>" data-power="<%= p.powerW %>" data-score="<%= p.score %>"<% } %>>
+  <div class="card__media">
+    <img src="<%= img(p.slug) %>" width="<%= imgW %>" height="<%= imgH %>" alt="<%= p.name %> - <%= p.category %>" decoding="async">
+  </div>
+  <div class="card__body">
+    <p class="card__cat"><%= p.category %></p>
+    <h2 class="card__title"><%= p.name %></h2>
+    <ul class="chips"><% p.highlights.forEach((h) => { %><li><%= h %></li><% }) %></ul>
+    <%_ if (full) { _%>
+    <table class="specs">
+      <tbody>
+        <%_ Object.entries(p.specs).forEach(([k, v]) => { _%>
+        <tr><th scope="row"><%= k %></th><td><%= v %></td></tr>
+        <%_ }) _%>
+      </tbody>
+    </table>
+    <%_ } _%>
+    <div class="card__foot">
+      <span class="price"><%= usd(p.price) %></span>
+      <button class="btn" type="button" data-buy>Comprar</button>
+    </div>
+  </div>
+</article>

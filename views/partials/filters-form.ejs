@@ -1,0 +1,32 @@
+<form id="filters-form">
+  <fieldset>
+    <legend>Categoría</legend>
+    <%_ categories.forEach((c) => { _%>
+    <label><input type="checkbox" name="cat" value="<%= c %>" checked> <%= c %></label>
+    <%_ }) _%>
+  </fieldset>
+
+  <label class="field">Almacenamiento
+    <select name="storage">
+      <option value="all">Todos</option>
+      <option>NVMe</option>
+      <option>SSD</option>
+      <option>HDD</option>
+    </select>
+  </label>
+
+  <label class="field">RAM mínima
+    <select name="ram">
+      <option value="0">Cualquiera</option>
+      <option value="64">64 GB</option>
+      <option value="256">256 GB</option>
+      <option value="512">512 GB</option>
+    </select>
+  </label>
+
+  <label class="field">Precio máximo: <output id="price-out">$80,000</output>
+    <input type="range" name="price" min="1000" max="80000" step="1000" value="80000">
+  </label>
+
+  <button class="btn btn--ghost" type="reset">Limpiar filtros</button>
+</form>

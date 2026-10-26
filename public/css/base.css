@@ -1,0 +1,70 @@
+/* public/css/base.css
+   Identidad visual COMPARTIDA por RWD y AWD (colores, tipografía, componentes).
+   El layout (columnas, orientación de tarjetas, sidebar) vive en cada versión. */
+
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --text: #1c2128;
+  --muted: #5b6573;
+  --line: #d8dee4;
+  --brand: #1f6feb;
+  --brand-dark: #1558bd;
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.4;
+       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+img { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
+
+/* ---------- Encabezado ---------- */
+.header { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center;
+          gap: 8px 16px; padding: 10px 16px; background: #0d1117; color: #fff; }
+.logo { color: #fff; font-size: 1.25rem; font-weight: 800; text-decoration: none; }
+.logo span { color: #58a6ff; }
+.nav { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.nav a { color: #c9d1d9; font-size: .9rem; text-decoration: none; }
+.nav a:hover { color: #fff; }
+.cart { margin-left: auto; font-size: .9rem; }
+
+/* ---------- Barra de contenido ---------- */
+.content__bar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+                gap: 4px 12px; margin-bottom: 12px; }
+.content__bar h1 { margin: 0; font-size: 1.4rem; }
+.content__bar p { margin: 0; color: var(--muted); font-size: .9rem; }
+.empty { padding: 24px; text-align: center; color: var(--muted); }
+
+/* ---------- Tarjeta de producto ---------- */
+.card { display: flex; background: var(--surface); border: 1px solid var(--line);
+        border-radius: var(--radius); overflow: hidden; }
+.card__media { background: #0d1117; }
+.card__body { display: flex; flex: 1; flex-direction: column; gap: 6px; min-width: 0; padding: 10px 12px; }
+.card__cat { margin: 0; color: var(--muted); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+.card__title { margin: 0; font-size: 1.05rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.chips li { padding: 2px 8px; border-radius: 999px; background: #eaf1fe; color: #0b3f91; font-size: .75rem; }
+.specs { width: 100%; border-collapse: collapse; font-size: .8rem; }
+.specs th, .specs td { padding: 4px 0; border-bottom: 1px solid var(--line); text-align: left; }
+.specs th { padding-right: 8px; color: var(--muted); font-weight: 600; }
+.card__foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+.price { font-weight: 700; }
+
+/* ---------- Botones y formularios ---------- */
+.btn { padding: 8px 14px; border: 0; border-radius: 8px; background: var(--brand); color: #fff;
+       font: inherit; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--brand-dark); }
+.btn--ghost { border: 1px solid var(--brand); background: transparent; color: var(--brand); }
+.btn--ghost:hover { background: #eaf1fe; }
+.icon-btn { padding: 4px 8px; border: 0; background: none; font-size: 1.2rem; cursor: pointer; }
+
+.sidebar h2 { margin: 0 0 8px; font-size: 1.1rem; }
+fieldset { display: grid; gap: 6px; margin: 0 0 12px; padding: 0; border: 0; }
+legend { margin-bottom: 6px; padding: 0; font-weight: 700; }
+fieldset label { display: flex; align-items: center; gap: 8px; font-size: .9rem; }
+.field { display: grid; gap: 4px; margin-bottom: 12px; font-size: .9rem; font-weight: 600; }
+select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; }
+input[type="range"] { width: 100%; }
+.compare { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.chart-box { position: relative; height: 320px; }

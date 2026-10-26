@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo de Servidores | Versión AWD (mobile)</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/adaptive-mobile.css">
+  <script src="/js/adaptive-filters.js" defer></script>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="layout">
+    <aside class="sidebar" id="filters" aria-label="Filtros">
+      <div class="sidebar__head">
+        <h2>Filtros</h2>
+        <button class="icon-btn" id="close-filters" type="button" aria-label="Cerrar filtros">✕</button>
+      </div>
+      <%- include('partials/filters-form') %>
+    </aside>
+
+    <main class="content">
+      <div class="content__bar">
+        <h1>Catálogo de servidores</h1>
+        <p id="result-count" aria-live="polite"><%= products.length %> de <%= products.length %> productos</p>
+      </div>
+      <div class="grid">
+        <%_ products.forEach((p) => { _%>
+        <%- include('partials/card', { p, full: false }) %>
+        <%_ }) _%>
+      </div>
+      <p id="empty" class="empty" hidden>Ningún producto coincide con los filtros.</p>
+    </main>
+  </div>
+
+  <button class="btn fab" id="toggle-filters" type="button" aria-expanded="false" aria-controls="filters">Filtros</button>
+</body>
+</html>

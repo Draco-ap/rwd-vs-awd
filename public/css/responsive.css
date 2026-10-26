@@ -1,0 +1,49 @@
+/* public/css/responsive.css
+   Layout RWD, mobile-first. Puntos de ruptura: móvil < 640 | tablet 640-1024 | desktop > 1024 */
+
+/* ===== MÓVIL (< 640px) ===== */
+.header .nav { order: 3; flex: 1 1 100%; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px;
+          max-width: 1400px; margin: 0 auto; padding: 16px; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+
+/* Tarjeta compacta horizontal: miniatura a la izquierda, texto a la derecha */
+.card { flex-direction: row; }
+.card__media { flex: 0 0 128px; }
+.card__media img { width: 100%; height: 100%; object-fit: cover; }
+
+/* La tabla completa se oculta con CSS... pero el HTML ya viajó por la red */
+.specs { display: none; }
+
+/* Barra lateral -> panel inferior colapsable */
+.sidebar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-height: 80vh; overflow-y: auto;
+           padding: 16px; background: var(--surface); border-radius: 16px 16px 0 0;
+           box-shadow: 0 -8px 24px rgba(0, 0, 0, .25);
+           transform: translateY(100%); visibility: hidden;
+           transition: transform .25s ease, visibility 0s linear .25s; }
+.sidebar.is-open { transform: none; visibility: visible; transition: transform .25s ease, visibility 0s; }
+.sidebar__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.fab { position: fixed; right: 16px; bottom: 16px; z-index: 25; padding: 12px 18px;
+       border-radius: 999px; box-shadow: 0 4px 12px rgba(0, 0, 0, .3); }
+
+/* ===== TABLET (640px - 1024px) ===== */
+@media (min-width: 640px) {
+  .header .nav { order: 0; flex: 1 1 auto; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .card { flex-direction: column; }
+  .card__media { flex: none; width: 100%; aspect-ratio: 4 / 3; }
+  .specs { display: table; }
+}
+
+/* ===== DESKTOP (> 1024px) ===== */
+@media (min-width: 1025px) {
+  .layout { grid-template-columns: 300px minmax(0, 1fr); align-items: start; gap: 24px; padding: 24px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }  /* grid fluido */
+
+  /* El panel inferior vuelve a ser barra lateral fija */
+  .sidebar { position: sticky; top: 72px; max-height: calc(100vh - 96px); z-index: auto;
+             border: 1px solid var(--line); border-radius: var(--radius); box-shadow: none;
+             transform: none; visibility: visible; }
+  .fab, #close-filters { display: none; }
+}
