@@ -1,466 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Catálogo de Servidores | Versión RWD</title>
-    <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/responsive.css">
-  <script src="/vendor/chart.umd.js" defer></script>
-  <script src="/js/responsive.js" defer></script>
+<meta charset="utf-8">
+<title>Reporte técnico: RWD vs. AWD</title>
+<style>
+  @page { size: Letter; margin: 18mm; }
+  body { font: 11pt/1.45 "Segoe UI", Arial, sans-serif; color: #1c2128; max-width: 780px; margin: 0 auto; }
+  h1 { font-size: 20pt; margin: 0 0 4px; }
+  h2 { font-size: 14pt; margin: 22px 0 6px; border-bottom: 1px solid #d8dee4; padding-bottom: 3px; }
+  p, li { text-align: justify; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 10pt; }
+  th, td { border: 1px solid #b8c0c8; padding: 5px 8px; text-align: left; }
+  th { background: #eaf1fe; }
+  figure { margin: 10px 0; break-inside: avoid; }
+  figure img { max-width: 100%; border: 1px solid #d8dee4; }
+  figcaption { font-size: 9pt; color: #5b6573; margin-top: 3px; }
+  .meta { color: #5b6573; margin: 0 0 12px; }
+  .pb { break-before: page; }
+</style>
 </head>
 <body>
-  <header class="header">
-    <a class="logo" href="/responsive">Rack<span>Lab</span></a>
-    <nav class="nav" aria-label="Principal">
-      <a href="#">Inicio</a>
-      <a href="#">Servidores</a>
-      <a href="#">Almacenamiento</a>
-      <a href="#">Soporte</a>
-    </nav>
-    <span class="cart">Carrito: <strong id="cart-count">0</strong></span>
-  </header>
 
-  <div class="layout">
-    <aside class="sidebar" id="filters" aria-label="Filtros y comparativa">
-      <div class="sidebar__head">
-        <h2>Filtros</h2>
-        <button class="icon-btn" id="close-filters" type="button" aria-label="Cerrar filtros">✕</button>
-      </div>
+<h1>Reporte técnico: RWD vs. AWD en un catálogo de componentes de servidor</h1>
+<p class="meta">Wilfrido Dagnino Medina · 2325010348 · Diseño de Interfaces Web · 25 de octubre de 2026<br>
+Repositorio: https://github.com/Draco-ap/rwd-vs-awd</p>
 
-      <form id="filters-form">
-        <fieldset>
-          <legend>Categoría</legend>
-          <label><input type="checkbox" name="cat" value="Servidor 1U" checked> Servidor 1U</label>
-          <label><input type="checkbox" name="cat" value="Servidor 2U" checked> Servidor 2U</label>
-          <label><input type="checkbox" name="cat" value="Servidor GPU" checked> Servidor GPU</label>
-          <label><input type="checkbox" name="cat" value="Almacenamiento" checked> Almacenamiento</label>
-        </fieldset>
+<h2>1. Objetivo y alcance</h2>
+<p>Se implementó un catálogo con dos estrategias: Diseño Web Responsivo (<code>/responsive</code>, HTML estático adaptado en cliente) y Diseño Web Adaptativo (<code>/adaptive</code>, servidor Express que detecta el dispositivo). Se midió la transferencia de red y rendimiento en móvil para emitir una recomendación arquitectónica. Productos ficticios.</p>
 
-        <label class="field">Almacenamiento
-          <select name="storage">
-            <option value="all">Todos</option>
-            <option>NVMe</option>
-            <option>SSD</option>
-            <option>HDD</option>
-          </select>
-        </label>
+<h2>2. Metodología</h2>
+<table>
+  <tr><th>Parámetro</th><th>Valor</th></tr>
+  <tr><td>Equipo y SO</td><td>Windows 11, HP OMEN 16-c0xxx conectada a la corriente</td></tr>
+  <tr><td>Navegador</td><td>Chrome , sin extensiones</td></tr>
+  <tr><td>Servidor</td><td>Node.js , Express, <code>NODE_ENV=production</code>, sin compresión ni lazy loading</td></tr>
+  <tr><td>Dispositivo (Network)</td><td>iPhone 12 Pro, 390 × 844 px (DevTools)</td></tr>
+  <tr><td>Red y CPU (Network)</td><td>Slow 4G, CPU 4x slowdown, Disable cache activado</td></tr>
+  <tr><td>Lighthouse</td><td>Modo Navigation, Mobile (Performance), Clear storage activado</td></tr>
+  <tr><td>Repeticiones</td><td>3 corridas en Network y 5 en Lighthouse (se reporta la <strong>mediana</strong>)</td></tr>
+</table>
 
-        <label class="field">RAM mínima
-          <select name="ram">
-            <option value="0">Cualquiera</option>
-            <option value="64">64 GB</option>
-            <option value="256">256 GB</option>
-            <option value="512">512 GB</option>
-          </select>
-        </label>
+<h2>3. Implementación</h2>
+<p><strong>RWD.</strong> HTML estático generado desde products.js. Emplea CSS Grid/Flexbox y media queries (640px, 1025px). Las imágenes usan <code>&lt;picture&gt;</code> (AVIF/WebP/JPG) y <code>srcset</code>. En móvil, el panel de filtros colapsa sin recargar.</p>
+<p><strong>AWD.</strong> Middleware express-useragent evalúa User-Agent y Accept. Renderiza vistas separadas (desktop/mobile). La vista móvil excluye intencionalmente canvas, Chart.js y tabla de specs. Envía cabeceras <code>Vary: User-Agent, Accept</code> e imágenes escaladas (320px móvil, 640px desktop).</p>
+<p><strong>Prueba de exclusión real.</strong> El script de verificación (<code>npm run check</code>) pasó 7/7 comprobaciones. La búsqueda de las cadenas <code>canvas</code> o <code>specs</code> en el Response del documento móvil arrojó 0 coincidencias (Figura 1), comprobando que los elementos no se ocultan con <code>display: none</code>.</p>
+<figure><img src="../evidence/awd-response-sin-canvas.png" alt="Response móvil de /adaptive sin canvas"><figcaption>Figura 1. Response del documento /adaptive en iPhone 12 Pro: 0 coincidencias.</figcaption></figure>
 
-        <label class="field">Precio máximo: <output id="price-out">$80,000</output>
-          <input type="range" name="price" min="1000" max="80000" step="1000" value="80000">
-        </label>
+<h2 class="pb">4. Resultados</h2>
+<table>
+  <tr><th>Métrica / Indicador</th><th>RWD (Móvil)</th><th>AWD (Móvil)</th><th>Delta (%)</th></tr>
+  <tr><td>Tamaño del documento inicial (HTML)</td><td>10.5 kB</td><td>8.2 kB</td><td>-21.90 %</td></tr>
+  <tr><td>Peso total de la página (payload)</td><td>450 kB</td><td>310 kB</td><td>-31.11 %</td></tr>
+  <tr><td>Número de peticiones HTTP</td><td>17</td><td>16</td><td>-5.88 %</td></tr>
+  <tr><td>Largest Contentful Paint (LCP)</td><td>2.1 s</td><td>1.5 s</td><td>-28.57 %</td></tr>
+  <tr><td>Cumulative Layout Shift (CLS)</td><td>0</td><td>0</td><td>0.00 %</td></tr>
+</table>
+<p>El AWD redujo el peso total y el LCP en ~30% al excluir scripts pesados (Chart.js) y código innecesario. Las peticiones HTTP se mantuvieron casi idénticas porque la carga principal proviene de las 12 imágenes de productos comunes en ambas vistas.</p>
+<figure><img src="../evidence/rwd-network.png" alt="Network RWD"><figcaption>Figura 2. Network, /responsive, Slow 4G, CPU 4x.</figcaption></figure>
+<figure><img src="../evidence/awd-network.png" alt="Network AWD"><figcaption>Figura 3. Network, /adaptive, mismas condiciones.</figcaption></figure>
+<figure><img src="../evidence/rwd-lighthouse.png" alt="Lighthouse RWD"><figcaption>Figura 4. Lighthouse móvil, /responsive.</figcaption></figure>
+<figure><img src="../evidence/awd-lighthouse.png" alt="Lighthouse AWD"><figcaption>Figura 5. Lighthouse móvil, /adaptive.</figcaption></figure>
 
-        <button class="btn btn--ghost" type="reset">Limpiar filtros</button>
-      </form>
+<h2 class="pb">5. Análisis crítico y recomendación</h2>
 
-      <section class="compare">
-        <h2>Comparativa</h2>
-        <label class="field">Métrica
-          <select id="metric">
-            <option value="score">Rendimiento</option>
-            <option value="power">Consumo (W)</option>
-            <option value="price">Precio (USD)</option>
-          </select>
-        </label>
-        <div class="chart-box">
-          <canvas id="chart" role="img" aria-label="Gráfico de barras que compara los productos visibles"></canvas>
-        </div>
-      </section>
-    </aside>
+<p><strong>Rendimiento vs. Costo de Render.</strong> En móvil, el AWD eliminó 140 kB de payload y mejoró el LCP excluyendo módulos estructurales. Sin embargo, esto introdujo un costo de render en servidor de 26.7 ms por petición, en contraste con el tiempo prácticamente nulo de servir el estático RWD. Un RWD altamente optimizado (con carga diferida de Chart.js mediante <code>import()</code>) podría acercarse al desempeño del AWD.</p>
 
-    <main class="content">
-      <div class="content__bar">
-        <h1>Catálogo de servidores</h1>
-        <p id="result-count" aria-live="polite">12 de 12 productos</p>
-      </div>
-      <div class="grid">
-      <article class="card" data-name="Atlas E1" data-category="Servidor 1U" data-price="1890" data-ram="64" data-storage="NVMe" data-power="300" data-score="5200">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/atlas-e1-320.avif 320w, /img/atlas-e1-640.avif 640w, /img/atlas-e1-960.avif 960w, /img/atlas-e1-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/atlas-e1-320.webp 320w, /img/atlas-e1-640.webp 640w, /img/atlas-e1-960.webp 960w, /img/atlas-e1-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/atlas-e1-640.jpg" srcset="/img/atlas-e1-320.jpg 320w, /img/atlas-e1-640.jpg 640w, /img/atlas-e1-960.jpg 960w, /img/atlas-e1-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Atlas E1 - Servidor 1U" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor 1U</p>
-          <h2 class="card__title">Atlas E1</h2>
-          <ul class="chips"><li>16 núcleos</li><li>64 GB RAM</li><li>2 TB NVMe</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>16 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>64 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>2 TB NVMe</td></tr>
-              <tr><th scope="row">Red</th><td>2x 10GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>300 W</td></tr>
-              <tr><th scope="row">Formato</th><td>1U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>5200</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$1,890</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Atlas E2" data-category="Servidor 1U" data-price="2790" data-ram="128" data-storage="NVMe" data-power="400" data-score="7600">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/atlas-e2-320.avif 320w, /img/atlas-e2-640.avif 640w, /img/atlas-e2-960.avif 960w, /img/atlas-e2-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/atlas-e2-320.webp 320w, /img/atlas-e2-640.webp 640w, /img/atlas-e2-960.webp 960w, /img/atlas-e2-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/atlas-e2-640.jpg" srcset="/img/atlas-e2-320.jpg 320w, /img/atlas-e2-640.jpg 640w, /img/atlas-e2-960.jpg 960w, /img/atlas-e2-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Atlas E2 - Servidor 1U" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor 1U</p>
-          <h2 class="card__title">Atlas E2</h2>
-          <ul class="chips"><li>24 núcleos</li><li>128 GB RAM</li><li>4 TB NVMe</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>24 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>128 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>4 TB NVMe</td></tr>
-              <tr><th scope="row">Red</th><td>2x 10GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>400 W</td></tr>
-              <tr><th scope="row">Formato</th><td>1U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>7600</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$2,790</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Atlas E3" data-category="Servidor 1U" data-price="4350" data-ram="256" data-storage="NVMe" data-power="550" data-score="10400">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/atlas-e3-320.avif 320w, /img/atlas-e3-640.avif 640w, /img/atlas-e3-960.avif 960w, /img/atlas-e3-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/atlas-e3-320.webp 320w, /img/atlas-e3-640.webp 640w, /img/atlas-e3-960.webp 960w, /img/atlas-e3-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/atlas-e3-640.jpg" srcset="/img/atlas-e3-320.jpg 320w, /img/atlas-e3-640.jpg 640w, /img/atlas-e3-960.jpg 960w, /img/atlas-e3-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Atlas E3 - Servidor 1U" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor 1U</p>
-          <h2 class="card__title">Atlas E3</h2>
-          <ul class="chips"><li>32 núcleos</li><li>256 GB RAM</li><li>8 TB NVMe</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>32 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>256 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>8 TB NVMe</td></tr>
-              <tr><th scope="row">Red</th><td>2x 25GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>550 W</td></tr>
-              <tr><th scope="row">Formato</th><td>1U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>10400</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$4,350</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Borealis M1" data-category="Servidor 2U" data-price="5200" data-ram="256" data-storage="SSD" data-power="650" data-score="11200">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/borealis-m1-320.avif 320w, /img/borealis-m1-640.avif 640w, /img/borealis-m1-960.avif 960w, /img/borealis-m1-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/borealis-m1-320.webp 320w, /img/borealis-m1-640.webp 640w, /img/borealis-m1-960.webp 960w, /img/borealis-m1-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/borealis-m1-640.jpg" srcset="/img/borealis-m1-320.jpg 320w, /img/borealis-m1-640.jpg 640w, /img/borealis-m1-960.jpg 960w, /img/borealis-m1-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Borealis M1 - Servidor 2U" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor 2U</p>
-          <h2 class="card__title">Borealis M1</h2>
-          <ul class="chips"><li>32 núcleos</li><li>256 GB RAM</li><li>16 TB SSD</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>32 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>256 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>16 TB SSD</td></tr>
-              <tr><th scope="row">Red</th><td>2x 25GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>650 W</td></tr>
-              <tr><th scope="row">Formato</th><td>2U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>11200</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$5,200</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Borealis M2" data-category="Servidor 2U" data-price="8900" data-ram="512" data-storage="SSD" data-power="900" data-score="20500">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/borealis-m2-320.avif 320w, /img/borealis-m2-640.avif 640w, /img/borealis-m2-960.avif 960w, /img/borealis-m2-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/borealis-m2-320.webp 320w, /img/borealis-m2-640.webp 640w, /img/borealis-m2-960.webp 960w, /img/borealis-m2-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/borealis-m2-640.jpg" srcset="/img/borealis-m2-320.jpg 320w, /img/borealis-m2-640.jpg 640w, /img/borealis-m2-960.jpg 960w, /img/borealis-m2-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Borealis M2 - Servidor 2U" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor 2U</p>
-          <h2 class="card__title">Borealis M2</h2>
-          <ul class="chips"><li>64 núcleos</li><li>512 GB RAM</li><li>24 TB SSD</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>64 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>512 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>24 TB SSD</td></tr>
-              <tr><th scope="row">Red</th><td>2x 25GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>900 W</td></tr>
-              <tr><th scope="row">Formato</th><td>2U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>20500</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$8,900</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Borealis M3" data-category="Servidor 2U" data-price="14600" data-ram="1024" data-storage="SSD" data-power="1200" data-score="31800">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/borealis-m3-320.avif 320w, /img/borealis-m3-640.avif 640w, /img/borealis-m3-960.avif 960w, /img/borealis-m3-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/borealis-m3-320.webp 320w, /img/borealis-m3-640.webp 640w, /img/borealis-m3-960.webp 960w, /img/borealis-m3-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/borealis-m3-640.jpg" srcset="/img/borealis-m3-320.jpg 320w, /img/borealis-m3-640.jpg 640w, /img/borealis-m3-960.jpg 960w, /img/borealis-m3-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Borealis M3 - Servidor 2U" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor 2U</p>
-          <h2 class="card__title">Borealis M3</h2>
-          <ul class="chips"><li>96 núcleos</li><li>1024 GB RAM</li><li>32 TB SSD</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>96 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>1024 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>32 TB SSD</td></tr>
-              <tr><th scope="row">Red</th><td>4x 25GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>1200 W</td></tr>
-              <tr><th scope="row">Formato</th><td>2U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>31800</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$14,600</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Cygnus G1" data-category="Servidor GPU" data-price="21500" data-ram="256" data-storage="NVMe" data-power="1600" data-score="48000">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/cygnus-g1-320.avif 320w, /img/cygnus-g1-640.avif 640w, /img/cygnus-g1-960.avif 960w, /img/cygnus-g1-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/cygnus-g1-320.webp 320w, /img/cygnus-g1-640.webp 640w, /img/cygnus-g1-960.webp 960w, /img/cygnus-g1-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/cygnus-g1-640.jpg" srcset="/img/cygnus-g1-320.jpg 320w, /img/cygnus-g1-640.jpg 640w, /img/cygnus-g1-960.jpg 960w, /img/cygnus-g1-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Cygnus G1 - Servidor GPU" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor GPU</p>
-          <h2 class="card__title">Cygnus G1</h2>
-          <ul class="chips"><li>32 núcleos</li><li>256 GB RAM</li><li>8 TB NVMe</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>32 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>256 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>8 TB NVMe</td></tr>
-              <tr><th scope="row">Red</th><td>2x 25GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>1600 W</td></tr>
-              <tr><th scope="row">Formato</th><td>2U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>48000</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$21,500</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Cygnus G2" data-category="Servidor GPU" data-price="38900" data-ram="512" data-storage="NVMe" data-power="2400" data-score="82000">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/cygnus-g2-320.avif 320w, /img/cygnus-g2-640.avif 640w, /img/cygnus-g2-960.avif 960w, /img/cygnus-g2-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/cygnus-g2-320.webp 320w, /img/cygnus-g2-640.webp 640w, /img/cygnus-g2-960.webp 960w, /img/cygnus-g2-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/cygnus-g2-640.jpg" srcset="/img/cygnus-g2-320.jpg 320w, /img/cygnus-g2-640.jpg 640w, /img/cygnus-g2-960.jpg 960w, /img/cygnus-g2-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Cygnus G2 - Servidor GPU" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor GPU</p>
-          <h2 class="card__title">Cygnus G2</h2>
-          <ul class="chips"><li>64 núcleos</li><li>512 GB RAM</li><li>16 TB NVMe</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>64 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>512 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>16 TB NVMe</td></tr>
-              <tr><th scope="row">Red</th><td>2x 100GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>2400 W</td></tr>
-              <tr><th scope="row">Formato</th><td>4U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>82000</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$38,900</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Cygnus G3" data-category="Servidor GPU" data-price="74000" data-ram="1024" data-storage="NVMe" data-power="3200" data-score="150000">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/cygnus-g3-320.avif 320w, /img/cygnus-g3-640.avif 640w, /img/cygnus-g3-960.avif 960w, /img/cygnus-g3-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/cygnus-g3-320.webp 320w, /img/cygnus-g3-640.webp 640w, /img/cygnus-g3-960.webp 960w, /img/cygnus-g3-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/cygnus-g3-640.jpg" srcset="/img/cygnus-g3-320.jpg 320w, /img/cygnus-g3-640.jpg 640w, /img/cygnus-g3-960.jpg 960w, /img/cygnus-g3-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Cygnus G3 - Servidor GPU" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Servidor GPU</p>
-          <h2 class="card__title">Cygnus G3</h2>
-          <ul class="chips"><li>96 núcleos</li><li>1024 GB RAM</li><li>30 TB NVMe</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>96 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>1024 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>30 TB NVMe</td></tr>
-              <tr><th scope="row">Red</th><td>4x 100GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>3200 W</td></tr>
-              <tr><th scope="row">Formato</th><td>4U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>150000</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$74,000</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Dorado S1" data-category="Almacenamiento" data-price="3900" data-ram="32" data-storage="HDD" data-power="450" data-score="2800">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/dorado-s1-320.avif 320w, /img/dorado-s1-640.avif 640w, /img/dorado-s1-960.avif 960w, /img/dorado-s1-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/dorado-s1-320.webp 320w, /img/dorado-s1-640.webp 640w, /img/dorado-s1-960.webp 960w, /img/dorado-s1-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/dorado-s1-640.jpg" srcset="/img/dorado-s1-320.jpg 320w, /img/dorado-s1-640.jpg 640w, /img/dorado-s1-960.jpg 960w, /img/dorado-s1-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Dorado S1 - Almacenamiento" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Almacenamiento</p>
-          <h2 class="card__title">Dorado S1</h2>
-          <ul class="chips"><li>8 núcleos</li><li>32 GB RAM</li><li>48 TB HDD</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>8 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>32 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>48 TB HDD</td></tr>
-              <tr><th scope="row">Red</th><td>2x 10GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>450 W</td></tr>
-              <tr><th scope="row">Formato</th><td>2U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>2800</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$3,900</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Dorado S2" data-category="Almacenamiento" data-price="7400" data-ram="128" data-storage="HDD" data-power="700" data-score="4900">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/dorado-s2-320.avif 320w, /img/dorado-s2-640.avif 640w, /img/dorado-s2-960.avif 960w, /img/dorado-s2-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/dorado-s2-320.webp 320w, /img/dorado-s2-640.webp 640w, /img/dorado-s2-960.webp 960w, /img/dorado-s2-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/dorado-s2-640.jpg" srcset="/img/dorado-s2-320.jpg 320w, /img/dorado-s2-640.jpg 640w, /img/dorado-s2-960.jpg 960w, /img/dorado-s2-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Dorado S2 - Almacenamiento" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Almacenamiento</p>
-          <h2 class="card__title">Dorado S2</h2>
-          <ul class="chips"><li>16 núcleos</li><li>128 GB RAM</li><li>120 TB HDD</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>16 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>128 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>120 TB HDD</td></tr>
-              <tr><th scope="row">Red</th><td>2x 25GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>700 W</td></tr>
-              <tr><th scope="row">Formato</th><td>4U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>4900</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$7,400</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      <article class="card" data-name="Dorado S3" data-category="Almacenamiento" data-price="13900" data-ram="256" data-storage="HDD" data-power="1000" data-score="7300">
-        <div class="card__media">
-          <picture>
-            <source type="image/avif" srcset="/img/dorado-s3-320.avif 320w, /img/dorado-s3-640.avif 640w, /img/dorado-s3-960.avif 960w, /img/dorado-s3-1600.avif 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <source type="image/webp" srcset="/img/dorado-s3-320.webp 320w, /img/dorado-s3-640.webp 640w, /img/dorado-s3-960.webp 960w, /img/dorado-s3-1600.webp 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px">
-            <img src="/img/dorado-s3-640.jpg" srcset="/img/dorado-s3-320.jpg 320w, /img/dorado-s3-640.jpg 640w, /img/dorado-s3-960.jpg 960w, /img/dorado-s3-1600.jpg 1600w" sizes="(min-width: 1025px) 300px, (min-width: 640px) 46vw, 128px" width="640" height="480" alt="Dorado S3 - Almacenamiento" decoding="async">
-          </picture>
-        </div>
-        <div class="card__body">
-          <p class="card__cat">Almacenamiento</p>
-          <h2 class="card__title">Dorado S3</h2>
-          <ul class="chips"><li>24 núcleos</li><li>256 GB RAM</li><li>360 TB HDD</li></ul>
-          <table class="specs">
-            <tbody>
-              <tr><th scope="row">Procesador</th><td>24 núcleos</td></tr>
-              <tr><th scope="row">Memoria</th><td>256 GB DDR5 ECC</td></tr>
-              <tr><th scope="row">Almacenamiento</th><td>360 TB HDD</td></tr>
-              <tr><th scope="row">Red</th><td>2x 25GbE</td></tr>
-              <tr><th scope="row">Consumo máximo</th><td>1000 W</td></tr>
-              <tr><th scope="row">Formato</th><td>4U para rack</td></tr>
-              <tr><th scope="row">Gestión remota</th><td>BMC con interfaz web</td></tr>
-              <tr><th scope="row">Garantía</th><td>3 años on-site</td></tr>
-              <tr><th scope="row">Puntaje de rendimiento</th><td>7300</td></tr>
-            </tbody>
-          </table>
-          <div class="card__foot">
-            <span class="price">$13,900</span>
-            <button class="btn" type="button" data-buy>Comprar</button>
-          </div>
-        </div>
-      </article>
-      </div>
-      <p id="empty" class="empty" hidden>Ningún producto coincide con los filtros.</p>
-    </main>
-  </div>
+<p><strong>Impacto en CDN y Deuda Técnica.</strong> El HTML del RWD se cachea eficientemente con una sola clave. El AWD exige enviar la cabecera <code>Vary: User-Agent, Accept</code>, lo que fragmenta la caché de la CDN por cada variante de navegador, obligando a normalizar identificadores en el borde para evitar picos de carga en el origen. Además, el AWD genera <strong>deuda técnica</strong> al requerir sincronización constante entre plantillas (mobile/desktop), duplicación de pruebas y riesgos de paridad en indexación SEO (mobile-first).</p>
 
-  <button class="btn fab" id="toggle-filters" type="button" aria-expanded="false" aria-controls="filters">Filtros y comparativa</button>
+<p><strong>Recomendación empresarial.</strong> Recomiendo <strong>RWD como arquitectura por defecto</strong> debido a su simplicidad operativa y alta compatibilidad con CDN. El enfoque AWD solo se justifica si las diferencias de interfaz son profundamente estructurales y existe un tráfico móvil masivo. Por ejemplo, con 1,000,000 de visitas móviles al mes, el ahorro de 140 kB por visita equivale a <strong>140 GB mensuales de transferencia</strong>; la empresa debe evaluar si el ahorro en costos de red compensa el aumento en procesamiento y mantenimiento del servidor.</p>
+
+<h2>6. Conclusiones y limitaciones</h2>
+<ul>
+  <li>El AWD ofrece ventajas tangibles de rendimiento al recortar el DOM en el origen, pero su complejidad de caché lo hace inviable para proyectos sin equipo de infraestructura de borde.</li>
+  <li>Las métricas se obtuvieron en un entorno de red simulado (Slow 4G) sin compresión gzip ni <code>loading="lazy"</code> para garantizar el determinismo.</li>
+  <li>En dispositivos emulados (3x), el RWD descargó imágenes a 640 px y el AWD fijó su límite en 320 px según su lógica interna de dispositivo.</li>
+</ul>
+
 </body>
 </html>
